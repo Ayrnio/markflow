@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import os
 
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QThread, Qt, Signal
 from PySide6.QtWidgets import (
+    QFrame,
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
     QFileDialog,
     QGroupBox,
+    QScrollArea,
 )
 from qfluentwidgets import (
     BodyLabel,
@@ -60,7 +62,22 @@ class SettingsInterface(QWidget):
         self._load_settings()
 
     def _build_ui(self) -> None:
-        layout = QVBoxLayout(self)
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(0)
+
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setObjectName("SettingsScrollArea")
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        root_layout.addWidget(self.scroll_area)
+
+        self.content = QWidget(self.scroll_area)
+        self.content.setObjectName("SettingsContent")
+        self.scroll_area.setWidget(self.content)
+
+        layout = QVBoxLayout(self.content)
         layout.setContentsMargins(18, 14, 18, 18)
         layout.setSpacing(12)
 

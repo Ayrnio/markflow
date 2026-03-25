@@ -105,9 +105,18 @@ NavigationPanel QScrollArea, NavigationPanel #scrollWidget {{
     background: transparent;
 }}
 
-QWidget#SettingsInterface, QWidget#HelpInterface, QWidget#HomeInterface {{
+#SettingsInterface, #SettingsContent, #HelpInterface, #HelpContent, #HomeInterface {{
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {panel_bg_a}, stop:1 {panel_bg_b});
     font-size: 14px;
+}}
+
+QScrollArea#SettingsScrollArea, QScrollArea#HelpScrollArea {{
+    border: none;
+    background: transparent;
+}}
+
+QScrollArea#SettingsScrollArea > QWidget, QScrollArea#HelpScrollArea > QWidget {{
+    background: transparent;
 }}
 
 CardWidget, ElevatedCardWidget, SimpleCardWidget {{

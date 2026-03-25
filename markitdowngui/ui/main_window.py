@@ -27,6 +27,7 @@ class MainWindow(FluentWindow):
     def _init_window(self) -> None:
         self.setWindowTitle(self.translate("app_title"))
         self.resize(980, 740)
+        self.setMinimumSize(820, 520)
 
         geometry = self.settings_manager.get_window_geometry()
         if geometry:

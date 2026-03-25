@@ -70,8 +70,12 @@ class HomeInterface(QWidget):
         self._set_state_empty()
 
     def translate(self, key: str) -> str:
-        if self.window() and hasattr(self.window(), "translate"):
-            return self.window().translate(key)
+        try:
+            window = self.window()
+        except RuntimeError:
+            window = None
+        if window and hasattr(window, "translate"):
+            return window.translate(key)
         from markitdowngui.utils.translations import get_translation
 
         lang = self.settings_manager.get_current_language() or DEFAULT_LANG
@@ -763,24 +767,30 @@ class HomeInterface(QWidget):
         self.results_card.setVisible(True)
 
     def _on_queue_rows_removed(self) -> None:
-        had_results = bool(self.conversionResults)
-        if had_results:
-            self._clear_result_views(reset_progress=True)
-        self._update_queue_title()
-        next_state = next_state_after_queue_change(
-            has_results=had_results,
-            has_files=bool(self.filePanel.get_all_files()),
-        )
-        if next_state == "empty":
-            self._set_state_empty()
-        elif next_state == "queue":
-            self._set_state_queue()
+        try:
+            had_results = bool(self.conversionResults)
+            if had_results:
+                self._clear_result_views(reset_progress=True)
+            self._update_queue_title()
+            next_state = next_state_after_queue_change(
+                has_results=had_results,
+                has_files=bool(self.filePanel.get_all_files()),
+            )
+            if next_state == "empty":
+                self._set_state_empty()
+            elif next_state == "queue":
+                self._set_state_queue()
+        except RuntimeError:
+            return
 
     def _update_queue_title(self) -> None:
-        count = len(self.filePanel.get_all_files())
-        self.queue_title.setText(
-            self.translate("home_queue_title_with_count").format(count=count)
-        )
+        try:
+            count = len(self.filePanel.get_all_files())
+            self.queue_title.setText(
+                self.translate("home_queue_title_with_count").format(count=count)
+            )
+        except RuntimeError:
+            return
 
     def show_shortcuts(self) -> None:
         dialog = ShortcutDialog(self.translate, self)

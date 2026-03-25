@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QUrl, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtCore import Qt, QTimer, QUrl, Signal
+from PySide6.QtGui import QResizeEvent, QShowEvent
+from PySide6.QtWidgets import QFrame, QScrollArea, QWidget, QVBoxLayout
 from qfluentwidgets import (
     BodyLabel,
     ExpandSettingCard,
@@ -23,10 +24,27 @@ class HelpInterface(QWidget):
         super().__init__(parent=parent)
         self.setObjectName("HelpInterface")
         self.translate = translate
+        self._faq_cards: list[ExpandSettingCard] = []
+        self._faq_layout_update_pending = False
         self._build_ui()
 
     def _build_ui(self) -> None:
-        layout = QVBoxLayout(self)
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(0)
+
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setObjectName("HelpScrollArea")
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        root_layout.addWidget(self.scroll_area)
+
+        self.content = QWidget(self.scroll_area)
+        self.content.setObjectName("HelpContent")
+        self.scroll_area.setWidget(self.content)
+
+        layout = QVBoxLayout(self.content)
         layout.setContentsMargins(18, 14, 18, 18)
         layout.setSpacing(12)
 
@@ -130,4 +148,27 @@ class HelpInterface(QWidget):
         card.viewLayout.setContentsMargins(20, 12, 20, 18)
         card.viewLayout.addWidget(answer)
         card._adjustViewSize()
+        self._faq_cards.append(card)
         return card
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        self._schedule_faq_layout_update()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self._schedule_faq_layout_update()
+
+    def _schedule_faq_layout_update(self) -> None:
+        if self._faq_layout_update_pending:
+            return
+        self._faq_layout_update_pending = True
+        QTimer.singleShot(0, self._update_faq_card_sizes)
+
+    def _update_faq_card_sizes(self) -> None:
+        self._faq_layout_update_pending = False
+        for card in self._faq_cards:
+            card._adjustViewSize()
+            card.adjustSize()
+        if hasattr(self, "content"):
+            self.content.adjustSize()

@@ -30,7 +30,13 @@ class FilePanel(QWidget):
         self.current_item_changed.emit(current, previous)
 
     def get_all_files(self) -> list[str]:
-        return [self.drop.listWidget.item(i).text() for i in range(self.drop.listWidget.count())]
+        try:
+            return [
+                self.drop.listWidget.item(i).text()
+                for i in range(self.drop.listWidget.count())
+            ]
+        except RuntimeError:
+            return []
 
     def add_file(self, path: str) -> None:
         self.drop.listWidget.addItem(path)
@@ -43,7 +49,10 @@ class FilePanel(QWidget):
         self.drop.listWidget.clear()
 
     def current_item_text(self) -> str | None:
-        item = self.drop.listWidget.currentItem()
+        try:
+            item = self.drop.listWidget.currentItem()
+        except RuntimeError:
+            return None
         return item.text() if item else None
 
     def retranslate_ui(self, translate):
