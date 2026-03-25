@@ -49,7 +49,9 @@ class HelpInterface(QWidget):
         layout.setSpacing(12)
 
         layout.addWidget(TitleLabel(self.translate("help_title")))
-        layout.addWidget(BodyLabel(self.translate("help_description")))
+        self.help_description_label = BodyLabel(self.translate("help_description"))
+        self.help_description_label.setWordWrap(True)
+        layout.addWidget(self.help_description_label)
 
         check_updates_btn = PushButton(self.translate("menu_check_updates"))
         check_updates_btn.setIcon(FIF.SYNC)

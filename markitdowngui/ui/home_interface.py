@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QKeySequence, QShortcut, QTextDocument
+from PySide6.QtGui import QKeySequence, QResizeEvent, QShortcut, QTextDocument
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
+    QSizePolicy,
 )
 from qfluentwidgets import (
     BodyLabel,
@@ -62,6 +63,7 @@ class HomeInterface(QWidget):
         self.processingBackends: dict[str, str] = {}
         self._is_dark_theme = False
         self._current_markdown = ""
+        self._preview_file_caption_full_text = ""
         self.setAcceptDrops(True)
 
         self._build_ui()
@@ -91,13 +93,20 @@ class HomeInterface(QWidget):
         empty_layout.setContentsMargins(30, 28, 30, 28)
         empty_layout.setSpacing(10)
         empty_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.empty_title_label = BodyLabel(self.translate("home_empty_state_title"))
+        self.empty_subtitle_label = CaptionLabel(self.translate("home_empty_subtitle"))
+        self.supported_formats_label = CaptionLabel(
+            self.translate("home_supported_formats")
+        )
+        self.empty_subtitle_label.setWordWrap(True)
+        self.supported_formats_label.setWordWrap(True)
         empty_layout.addWidget(
-            BodyLabel(self.translate("home_empty_state_title")),
+            self.empty_title_label,
             0,
             Qt.AlignmentFlag.AlignHCenter,
         )
         empty_layout.addWidget(
-            CaptionLabel(self.translate("home_empty_subtitle")),
+            self.empty_subtitle_label,
             0,
             Qt.AlignmentFlag.AlignHCenter,
         )
@@ -106,7 +115,7 @@ class HomeInterface(QWidget):
         self.empty_select_btn.clicked.connect(self.browse_files)
         empty_layout.addWidget(self.empty_select_btn, 0, Qt.AlignmentFlag.AlignHCenter)
         empty_layout.addWidget(
-            CaptionLabel(self.translate("home_supported_formats")),
+            self.supported_formats_label,
             0,
             Qt.AlignmentFlag.AlignHCenter,
         )
@@ -202,15 +211,18 @@ class HomeInterface(QWidget):
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(8)
 
-        right_header = QHBoxLayout()
-        right_header.setSpacing(8)
-        right_header.addWidget(BodyLabel(self.translate("home_markdown_preview_label")))
-        right_header.addStretch(1)
-        self.preview_file_caption = CaptionLabel(
-            self.translate("home_preview_file_default")
+        self.preview_title_label = BodyLabel(
+            self.translate("home_markdown_preview_label")
         )
-        right_header.addWidget(self.preview_file_caption)
-        right_layout.addLayout(right_header)
+        right_layout.addWidget(self.preview_title_label)
+
+        self.preview_file_caption = CaptionLabel("")
+        self.preview_file_caption.setSizePolicy(
+            QSizePolicy.Policy.Ignored,
+            QSizePolicy.Policy.Fixed,
+        )
+        right_layout.addWidget(self.preview_file_caption)
+        self._set_preview_file_caption(self.translate("home_preview_file_default"))
 
         self.preview_mode_segment = SegmentedWidget(right_panel)
         self.preview_mode_segment.addItem(
@@ -612,11 +624,11 @@ class HomeInterface(QWidget):
 
     def _on_result_file_changed(self, current, _previous) -> None:
         if not current:
-            self.preview_file_caption.setText(self.translate("home_preview_file_default"))
+            self._set_preview_file_caption(self.translate("home_preview_file_default"))
             self._set_markdown_preview("")
             return
         file_path = current.data(Qt.ItemDataRole.UserRole)
-        self.preview_file_caption.setText(
+        self._set_preview_file_caption(
             self.translate("home_preview_for_file").format(file=os.path.basename(file_path))
         )
         markdown = self.conversionResults.get(file_path, "")
@@ -736,10 +748,34 @@ class HomeInterface(QWidget):
         self.conversionResults = {}
         self.failedConversionFiles = set()
         self.result_file_list.clear()
-        self.preview_file_caption.setText(self.translate("home_preview_file_default"))
+        self._set_preview_file_caption(self.translate("home_preview_file_default"))
         self._set_markdown_preview("")
         if reset_progress:
             self._reset_progress_display()
+
+    def _set_preview_file_caption(self, text: str) -> None:
+        self._preview_file_caption_full_text = text
+        self._apply_preview_file_caption()
+
+    def _apply_preview_file_caption(self) -> None:
+        if not hasattr(self, "preview_file_caption"):
+            return
+
+        full_text = self._preview_file_caption_full_text
+        available_width = self.preview_file_caption.width()
+        if available_width > 0:
+            display_text = self.preview_file_caption.fontMetrics().elidedText(
+                full_text,
+                Qt.TextElideMode.ElideMiddle,
+                available_width,
+            )
+        else:
+            display_text = full_text
+
+        self.preview_file_caption.setText(display_text)
+        self.preview_file_caption.setToolTip(
+            full_text if display_text != full_text else ""
+        )
 
     def go_back_to_queue(self) -> None:
         if not self.filePanel.get_all_files():
@@ -765,6 +801,7 @@ class HomeInterface(QWidget):
         self.empty_card.setVisible(False)
         self.queue_card.setVisible(False)
         self.results_card.setVisible(True)
+        self._apply_preview_file_caption()
 
     def _on_queue_rows_removed(self) -> None:
         try:
@@ -791,6 +828,10 @@ class HomeInterface(QWidget):
             )
         except RuntimeError:
             return
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self._apply_preview_file_caption()
 
     def show_shortcuts(self) -> None:
         dialog = ShortcutDialog(self.translate, self)
