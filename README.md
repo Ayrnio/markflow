@@ -1,29 +1,27 @@
-[阅读中文版本](README_zh.md)
+[README](README_en.md)
 
 # AYRN MarkFlow
 
 A desktop GUI for [MarkItDown](https://github.com/microsoft/markitdown), built with **PySide6** and **QFluentWidgets**. It focuses on fast multi-file conversion to Markdown with a modern Fluent-style interface.
 
-![Current UI screenshot](image.png)
+<img width="1660" height="1088" alt="image" src="https://github.com/user-attachments/assets/d412599f-343c-4f87-8408-57ce27ef325d" />
+<img width="1667" height="1096" alt="image" src="https://github.com/user-attachments/assets/a811277a-9594-4bdb-9656-9c7e674a7e7d" />
+<img width="1669" height="1093" alt="image" src="https://github.com/user-attachments/assets/fa5f1d53-da30-453f-a092-3261fd09cb3c" />
+
 
 ## Fork attribution
 
 **AYRN MarkFlow** is a **fork** of **[markitdown-gui](https://github.com/imadreamerboy/markitdown-gui)** by [Jonas / imadreamerboy](https://github.com/imadreamerboy). The upstream project is an excellent baseline; this repository exists to ship a maintained variant with additional UX, theming, and conversion options.
 
-Following common open-source etiquette:
-
-- **Credit** — Upstream authors and dependencies are listed in [Credits](#credits). This fork does not replace or supersede the original project.
-- **License** — You remain bound by the same **GPLv3 (non-commercial)** terms as upstream, including [QFluentWidgets](https://qfluentwidgets.com/) licensing expectations.
-- **No endorsement** — Changes here are not endorsed by upstream unless they say so. Bugs that reproduce on the original app may be worth reporting [there](https://github.com/imadreamerboy/markitdown-gui/issues) first.
-- **Contributions** — Improvements specific to this fork belong in **this** repository; general fixes that benefit everyone are welcome as PRs upstream when appropriate.
-
 ## What’s different in this fork
 
-- **Branding & UI** — **AYRN MarkFlow** identity, refined **Perfect Dark** theme (extra palette + nav/title chrome), centered content column on wide displays, and other layout polish.
-- **OCR & models** — Optional **OpenAI-compatible vision** path (e.g. **LM Studio**) for rasterized PDF pages and images; configurable vision prompt/model; optional **“always OCR PDFs”** (skip embedded text) for difficult PDFs. Azure and Tesseract flows from upstream remain.
-- **Reliability** — Conversion **cancel** tears down in-flight **HTTP** where applicable; clearer **PDF / model** progress feedback.
-- **Queue** — **Add Folder** (flat: **top-level files only**, not subfolders) alongside **Add Files**; file-type filter respected when adding from a folder in the queue view.
-- **Internationalization** — English and Chinese (zh_CN) strings extended for new UI.
+- Time elapsed indicator
+- Visual progress indicator and real time information for the number of documents and the number of pages processed within a given document.
+- **AYRN MarkFlow** refined **Perfect Dark** theme (extra palette + nav/title chrome), centered content column on wide displays, and other layout polish.
+- Optional **OpenAI-compatible vision** path (e.g. **LM Studio**) for rasterized PDF pages and images; configurable vision prompt/model; optional **“always OCR PDFs”** (skip embedded text) for difficult PDFs. Azure and Tesseract flows from upstream remain.
+- Conversion **cancel** tears down in-flight **HTTP** where applicable; clearer **PDF / model** progress feedback.
+- **Add Folder** (flat: **top-level files only**, not subfolders) alongside **Add Files**; file-type filter respected when adding from a folder in the queue view.
+- English and Chinese (zh_CN) strings extended for new UI.
 
 Upstream features below still apply unless noted.
 
