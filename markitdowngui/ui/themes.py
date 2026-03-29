@@ -37,8 +37,9 @@ def build_app_stylesheet(theme: str) -> str:
         panel_bg_a = "#2E3440"
         panel_bg_b = "#212121"
         window_bg = "#292929"
+        title_bar_bg = "#202020"
         stack_bg = "#252525"
-        nav_bg = "#2E3440"
+        nav_bg = "#202020"
         nav_border = "#454494"
         nav_rail_outline = "#C4C4F4"
         card_bg = "#212121"
@@ -54,6 +55,7 @@ def build_app_stylesheet(theme: str) -> str:
         panel_bg_a = "#2E3440"
         panel_bg_b = "#3B4252"
         window_bg = "#2B313D"
+        title_bar_bg = "transparent"
         stack_bg = "#313947"
         nav_bg = "#2E3440"
         nav_border = "#4C566A"
@@ -71,6 +73,7 @@ def build_app_stylesheet(theme: str) -> str:
         panel_bg_a = "#FDF6E3"
         panel_bg_b = "#F7F0DB"
         window_bg = "#F6EFD8"
+        title_bar_bg = "transparent"
         stack_bg = "#FAF4E2"
         nav_bg = "#F2EAD3"
         nav_border = "#D9CCA8"
@@ -91,7 +94,7 @@ FluentWindowBase {{
 }}
 
 FluentTitleBar, SplitTitleBar {{
-    background-color: transparent;
+    background-color: {title_bar_bg};
 }}
 
 FluentTitleBar>QLabel#titleLabel, SplitTitleBar>QLabel#titleLabel {{

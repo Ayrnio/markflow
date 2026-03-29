@@ -19,6 +19,7 @@ def main():
     # Create and start application
     app = QApplication(sys.argv)
     app.setApplicationName("AYRN MarkFlow")
+    app.setApplicationDisplayName("AYRN MarkFlow")
     window = MainWindow()
     window.show()
     app.processEvents()

@@ -5,6 +5,7 @@ from PySide6.QtGui import QGuiApplication, QResizeEvent, QShowEvent
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QVBoxLayout, QWidget
 
 from qfluentwidgets import FluentIcon as FIF, FluentWindow, NavigationItemPosition
+from qfluentwidgets.common.style_sheet import setCustomStyleSheet
 
 from markitdowngui.core.settings import SettingsManager
 from markitdowngui.ui.dialogs.about import AboutDialog
@@ -193,7 +194,42 @@ class MainWindow(FluentWindow):
         theme_mode = self.settings_manager.get_theme_mode()
         effective = apply_app_theme(theme_mode)
         self.setStyleSheet(build_app_stylesheet(effective))
+        self._apply_title_bar_chrome(theme_key=effective)
+        self._apply_navigation_panel_chrome(theme_key=effective)
         self.homeInterface.apply_theme_styles(effective)
+
+    def _apply_title_bar_chrome(self, *, theme_key: str) -> None:
+        """Re-tint the caption strip.
+
+        qfluentwidgets registers a per-widget stylesheet on ``FluentTitleBar`` (from
+        ``fluent_window.qss``) with ``background-color: transparent``. That wins over
+        rules set only on ``FluentWindow``, so parent QSS never paints the title bar.
+        On Windows 11, transparent + Mica also reads lighter than the solid nav/content
+        chrome. Push the intended fill through the library's custom QSS channel.
+        """
+        self.titleBar.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+        if theme_key == "perfect_dark":
+            dark_qss = "FluentTitleBar { background-color: #202020; }"
+        else:
+            dark_qss = "FluentTitleBar { background-color: transparent; }"
+        light_qss = "FluentTitleBar { background-color: transparent; }"
+        setCustomStyleSheet(self.titleBar, light_qss, dark_qss)
+
+    def _apply_navigation_panel_chrome(self, *, theme_key: str) -> None:
+        """NavigationPanel's bundled qss uses ``[menu=false]`` / ``[menu=true]``; a bare ``NavigationPanel``
+        rule loses on specificity, so transparent kept winning and the rail never matched the title bar.
+        """
+        panel = self.navigationInterface.panel
+        if theme_key == "perfect_dark":
+            # Match library selectors; !important beats equal-specificity rules from the same sheet order.
+            nav_fill = (
+                "NavigationPanel[menu=false] { background-color: #202020 !important; }\n"
+                "NavigationPanel[menu=true] { background-color: #202020 !important; }\n"
+                "NavigationPanel[transparent=true] { background-color: #202020 !important; }"
+            )
+            setCustomStyleSheet(panel, "", nav_fill)
+        else:
+            setCustomStyleSheet(panel, "", "")
 
     def show_about(self) -> None:
         dlg = AboutDialog(self.translate, self)

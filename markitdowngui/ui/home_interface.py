@@ -62,6 +62,19 @@ from markitdowngui.utils.logger import AppLogger
 from markitdowngui.utils.translations import DEFAULT_LANG
 
 
+class StableHomeCard(ElevatedCardWidget):
+    """Same look/shadow as ``ElevatedCardWidget`` without the hover ``pos`` nudge (``-3`` px)."""
+
+    def enterEvent(self, event):
+        super(ElevatedCardWidget, self).enterEvent(event)
+
+    def leaveEvent(self, event):
+        super(ElevatedCardWidget, self).leaveEvent(event)
+
+    def mousePressEvent(self, event):
+        super(ElevatedCardWidget, self).mousePressEvent(event)
+
+
 class HomeInterface(QWidget):
     """Home page with empty, queue, and results states."""
 
@@ -116,7 +129,7 @@ class HomeInterface(QWidget):
         self.main_layout.setContentsMargins(12, 12, 12, 12)
         self.main_layout.setSpacing(10)
 
-        self.empty_card = ElevatedCardWidget(self)
+        self.empty_card = StableHomeCard(self)
         self.empty_card.setObjectName("HomeEmptyCard")
         self.empty_card.setSizePolicy(
             QSizePolicy.Policy.Expanding,
@@ -158,9 +171,6 @@ class HomeInterface(QWidget):
         empty_layout.addWidget(self.empty_select_btn)
 
         self.empty_url_input = UrlInputBar(self.translate, self.empty_card)
-        self.empty_url_input.setMinimumHeight(50)
-        self.empty_url_input.url_edit.setMinimumHeight(44)
-        self.empty_url_input.submit_button.setMinimumHeight(44)
         self.empty_url_input.url_submitted.connect(self.submit_url)
         empty_layout.addWidget(self.empty_url_input)
 
